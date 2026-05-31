@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LEGACY Control Tower — Sekolah Rakyat Allocation System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:       #0A1628;
+  --navy-mid:   #112240;
+  --navy-light: #1A3358;
+  --ivory:      #F5F0E8;
+  --ivory-dim:  #E8E2D6;
+  --orange:     #E8702A;
+  --orange-dim: #C45A1A;
+  --red-brown:  #A83222;
+  --cyan:       #2DD4BF;
+  --cyan-dim:   #14B8A6;
+  --yellow:     #F59E0B;
+  --green:      #22C55E;
+  --text-primary:   #F5F0E8;
+  --text-secondary: #94A3B8;
+  --text-dim:       #64748B;
+  --border:     rgba(255,255,255,0.06);
+  --border-med: rgba(255,255,255,0.1);
+  --glow-cyan:  0 0 20px rgba(45,212,191,0.15);
+  --glow-orange:0 0 20px rgba(232,112,42,0.15);
+  --font-display: 'Sora', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --font-body:    'Space Grotesk', sans-serif;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--navy);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  background: var(--navy-mid);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.logo {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-wordmark {
+  font-family: var(--font-display);
+  font-weight: 700; font-size: 20px;
+  letter-spacing: 0.06em;
+  color: var(--ivory);
+}
+.logo-wordmark span { color: var(--cyan); }
+.logo-sub {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+}
+.topbar-center {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 600;
+  color: var(--ivory);
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+.topbar-center span {
+  color: var(--cyan);
+}
+.topbar-right {
+  display: flex; align-items: center; gap: 16px;
+}
+.live-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--cyan);
+}
+.live-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--cyan);
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:0.4; transform:scale(0.8); }
+}
+.topbar-meta {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--text-dim);
+}
+.user-chip {
+  background: var(--navy-light);
+  border: 1px solid var(--border-med);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 11px; color: var(--text-secondary);
+}
+
+/* ── MAIN GRID ── */
+.main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 320px 280px;
+  grid-template-rows: 1fr;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* ── LEFT: MAP PANEL ── */
+.map-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+.panel-header {
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  flex-shrink: 0;
+}
+.panel-title {
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 600;
+  color: var(--ivory);
+  letter-spacing: 0.04em;
+}
+.panel-subtitle {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+}
+.filter-row {
+  display: flex; gap: 6px;
+}
+.filter-btn {
+  font-family: var(--font-mono);
+  font-size: 9px; padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid var(--border-med);
+  background: transparent;
+  color: var(--text-dim); cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn.active {
+  background: var(--cyan);
+  color: var(--navy);
+  border-color: var(--cyan);
+}
+
+.map-area {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* SVG Indonesia map */
+.map-svg-wrap {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.map-svg-wrap svg {
+  width: 100%; height: 100%;
+}
+
+/* Cluster legend */
+.cluster-legend {
+  position: absolute;
+  bottom: 14px; left: 16px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10px; color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* Map stats row */
+.map-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.map-stat {
+  padding: 10px 14px;
+  border-right: 1px solid var(--border);
+}
+.map-stat:last-child { border-right: none; }
+.stat-val {
+  font-family: var(--font-display);
+  font-size: 16px; font-weight: 700;
+  color: var(--ivory);
+}
+.stat-val.orange { color: var(--orange); }
+.stat-val.cyan   { color: var(--cyan); }
+.stat-val.red    { color: #EF4444; }
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 0.06em; margin-top: 2px;
+}
+
+/* ── MIDDLE: PRIORITY + RISK ENGINE ── */
+.mid-panel {
+  display: flex; flex-direction: column;
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+}
+.mid-panel::-webkit-scrollbar { width: 3px; }
+.mid-panel::-webkit-scrollbar-track { background: transparent; }
+.mid-panel::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 2px; }
+
+/* Province Priority Card */
+.priority-card {
+  margin: 14px;
+  background: linear-gradient(135deg, var(--navy-light) 0%, rgba(26,51,88,0.6) 100%);
+  border: 1px solid rgba(232,112,42,0.3);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.priority-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--orange), var(--red-brown));
+}
+.priority-card-header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.priority-province {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 700; color: var(--ivory);
+}
+.priority-region {
+  font-size: 10px; color: var(--text-secondary);
+  margin-top: 2px;
+}
+.priority-index {
+  text-align: right;
+}
+.index-val {
+  font-family: var(--font-mono);
+  font-size: 22px; font-weight: 500;
+  color: var(--orange);
+  line-height: 1;
+}
+.index-label {
+  font-size: 9px; color: var(--text-dim);
+  letter-spacing: 0.06em; margin-top: 2px;
+}
+.cluster-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 9px; font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  margin-bottom: 12px;
+}
+.cluster-badge.ekstrem {
+  background: rgba(168,50,34,0.2);
+  border: 1px solid rgba(168,50,34,0.4);
+  color: #FCA5A5;
+}
+.cluster-badge-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #EF4444;
+}
+
+/* Risk indicators */
+.risk-indicators {
+  display: flex; flex-direction: column; gap: 7px;
+  margin-bottom: 12px;
+}
+.risk-row {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 10px;
+}
+.risk-name { color: var(--text-secondary); font-family: var(--font-mono); }
+.risk-bar-wrap {
+  flex: 1; margin: 0 10px;
+  height: 3px; background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
+}
+.risk-bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 1s ease;
+}
+.risk-score {
+  font-family: var(--font-mono); font-size: 10px;
+  min-width: 30px; text-align: right;
+}
+
+.recommendation-box {
+  background: rgba(45,212,191,0.05);
+  border: 1px solid rgba(45,212,191,0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.rec-label {
+  font-family: var(--font-mono);
+  font-size: 8px; letter-spacing: 0.08em;
+  color: var(--cyan); margin-bottom: 4px;
+}
+.rec-text {
+  font-size: 11px; color: var(--ivory);
+  line-height: 1.5; font-weight: 500;
+}
+
+/* Risk Engine */
+.section-block {
+  padding: 0 14px 14px;
+}
+.block-title {
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.1em;
+  color: var(--text-dim); text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.block-title::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--border);
+}
+
+.risk-engine-items { display: flex; flex-direction: column; gap: 8px; }
+.engine-row {
+  display: flex; align-items: center; gap: 10px;
+}
+.engine-pct {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500;
+  min-width: 32px; color: var(--ivory);
+}
+.engine-bar-wrap {
+  flex: 1; height: 20px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px; overflow: hidden;
+  position: relative;
+}
+.engine-bar-fill {
+  height: 100%;
+  display: flex; align-items: center; padding-left: 8px;
+  font-size: 9px; font-family: var(--font-mono);
+  letter-spacing: 0.04em;
+  border-radius: 4px;
+}
+.engine-weight {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--text-dim);
+}
+
+/* Intervention routes - metro style */
+.metro-flow { padding: 0 14px 14px; }
+.metro-cluster { margin-bottom: 14px; }
+.metro-cluster-label {
+  font-size: 10px; font-family: var(--font-display);
+  font-weight: 600; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 6px;
+}
+.metro-line {
+  display: flex; align-items: center;
+  gap: 0;
+  position: relative;
+}
+.metro-station {
+  display: flex; flex-direction: column; align-items: center;
+  flex: 1;
+}
+.metro-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 2px solid;
+  background: var(--navy);
+  flex-shrink: 0;
+  position: relative; z-index: 1;
+}
+.metro-connector {
+  flex: 1; height: 2px;
+  margin: 0 -1px;
+  position: relative;
+  top: -17px;
+}
+.metro-station-label {
+  font-size: 8px; font-family: var(--font-mono);
+  color: var(--text-secondary);
+  text-align: center; margin-top: 5px;
+  line-height: 1.3; max-width: 52px;
+}
+
+/* ── RIGHT: TEPAT MONITORING ── */
+.right-panel {
+  display: flex; flex-direction: column;
+  overflow-y: auto;
+}
+.right-panel::-webkit-scrollbar { width: 3px; }
+.right-panel::-webkit-scrollbar-thumb { background: var(--border-med); border-radius: 2px; }
+
+/* Gauge KPIs */
+.gauge-grid { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.gauge-card {
+  background: var(--navy-light);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  transition: border-color 0.2s;
+}
+.gauge-card:hover { border-color: var(--border-med); }
+
+.gauge-svg-wrap { flex-shrink: 0; }
+.gauge-text-wrap { flex: 1; min-width: 0; }
+.gauge-name {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  color: var(--ivory); margin-bottom: 2px;
+}
+.gauge-desc {
+  font-size: 9px; color: var(--text-dim);
+  font-family: var(--font-mono);
+  line-height: 1.4;
+}
+.gauge-score {
+  font-family: var(--font-mono);
+  font-size: 16px; font-weight: 500;
+  text-align: right; flex-shrink: 0;
+}
+
+/* Comparison table */
+.compare-block { padding: 0 14px 14px; }
+.compare-table { width: 100%; border-collapse: collapse; }
+.compare-table th {
+  font-family: var(--font-mono);
+  font-size: 8px; letter-spacing: 0.06em;
+  color: var(--text-dim); text-align: left;
+  padding: 0 0 8px;
+  border-bottom: 1px solid var(--border);
+}
+.compare-table td {
+  font-size: 10px; padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.compare-table tr:last-child td { border-bottom: none; }
+.td-label { color: var(--text-secondary); font-family: var(--font-mono); font-size: 9px; }
+.td-before { color: var(--text-dim); text-align: center; font-family: var(--font-mono); font-size: 10px; }
+.td-after  { color: var(--cyan); text-align: center; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+.td-delta  { text-align: right; font-family: var(--font-mono); font-size: 9px; }
+.delta-pos { color: var(--green); }
+.delta-neg { color: #EF4444; }
+
+/* Scrolling ticker at bottom */
+.ticker-bar {
+  background: var(--navy-mid);
+  border-top: 1px solid var(--border);
+  height: 28px;
+  display: flex; align-items: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ticker-label {
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--cyan);
+  letter-spacing: 0.08em;
+  padding: 0 14px;
+  white-space: nowrap;
+  border-right: 1px solid var(--border);
+  height: 100%; display: flex; align-items: center;
+  flex-shrink: 0;
+}
+.ticker-track {
+  flex: 1; overflow: hidden;
+  display: flex; align-items: center;
+}
+.ticker-scroll {
+  display: flex; gap: 40px;
+  animation: ticker 30s linear infinite;
+  white-space: nowrap;
+  font-family: var(--font-mono); font-size: 9px;
+  color: var(--text-dim);
+}
+.ticker-item span { color: var(--ivory); }
+@keyframes ticker {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ── TOOLTIP ── */
+.tooltip {
+  position: fixed;
+  background: var(--navy-mid);
+  border: 1px solid var(--border-med);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-secondary);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  z-index: 100;
+  max-width: 180px;
+}
+.tooltip.visible { opacity: 1; }
+.tooltip-title { color: var(--ivory); font-weight: 500; margin-bottom: 4px; }
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity:0; transform: translateY(8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.fade-in { animation: fadeInUp 0.4s ease forwards; }
+.fade-in-2 { animation: fadeInUp 0.4s 0.1s ease forwards; opacity:0; }
+.fade-in-3 { animation: fadeInUp 0.4s 0.2s ease forwards; opacity:0; }
+.fade-in-4 { animation: fadeInUp 0.4s 0.3s ease forwards; opacity:0; }
+
+/* Map pin animation */
+@keyframes pinPulse {
+  0%,100% { transform: scale(1); opacity:1; }
+  50% { transform: scale(1.3); opacity:0.7; }
+}
+.map-pin { animation: pinPulse 2s ease-in-out infinite; }
+.map-pin-2 { animation: pinPulse 2s 0.5s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar fade-in">
+  <div class="logo">
+    <div>
+      <div class="logo-wordmark">LEGACY<span>.</span></div>
+      <div class="logo-sub">LOCAL-DATA EMPOWERED GEOSPASIAL ALLOCATION CHILD-RISK SYSTEM</div>
+    </div>
+  </div>
+  <div class="topbar-center">
+    Control Tower — <span>Dari Peta Risiko ke Kursi Tepat Sasaran</span>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div>LIVE — Mei 2025</div>
+    <div class="topbar-meta">Model: Spatial Regression + K-Means · 38 Provinsi</div>
+    <div class="user-chip">Bappenas · Administrator</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- ── LEFT: MAP PANEL ── -->
+  <div class="map-panel fade-in">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Peta Klaster Risiko ATS — Indonesia</div>
+        <div class="panel-subtitle">SPATIAL REGRESSION + KMEANS CLUSTERING · DATA: BPS SUSENAS 2025 · DTSEN</div>
+      </div>
+      <div class="filter-row">
+        <button class="filter-btn active">Semua Klaster</button>
+        <button class="filter-btn">Risiko SD</button>
+        <button class="filter-btn">Risiko SMP</button>
+        <button class="filter-btn">Risiko SMA</button>
+      </div>
+    </div>
+
+    <div class="map-area">
+      <div class="map-svg-wrap">
+        <!-- Stylized Indonesia map SVG -->
+        <svg viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg" id="indonesia-map">
+          <defs>
+            <radialGradient id="bgGrad" cx="50%" cy="50%" r="70%">
+              <stop offset="0%" stop-color="#0F1E38"/>
+              <stop offset="100%" stop-color="#0A1628"/>
+            </radialGradient>
+            <!-- Cluster fills -->
+            <radialGradient id="clust1" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#A83222" stop-opacity="0.7"/>
+              <stop offset="100%" stop-color="#A83222" stop-opacity="0.2"/>
+            </radialGradient>
+            <radialGradient id="clust2" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#E8702A" stop-opacity="0.65"/>
+              <stop offset="100%" stop-color="#E8702A" stop-opacity="0.15"/>
+            </radialGradient>
+            <radialGradient id="clust3" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stop-color="#2DD4BF" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#2DD4BF" stop-opacity="0.1"/>
+            </radialGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glow-strong">
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+
+          <rect width="900" height="440" fill="url(#bgGrad)"/>
+
+          <!-- Grid lines subtle -->
+          <g stroke="rgba(255,255,255,0.02)" stroke-width="1">
+            <line x1="0" y1="110" x2="900" y2="110"/>
+            <line x1="0" y1="220" x2="900" y2="220"/>
+            <line x1="0" y1="330" x2="900" y2="330"/>
+            <line x1="225" y1="0" x2="225" y2="440"/>
+            <line x1="450" y1="0" x2="450" y2="440"/>
+            <line x1="675" y1="0" x2="675" y2="440"/>
+          </g>
+
+          <!-- ── ISLANDS ── -->
+
+          <!-- Sumatera -->
+          <path d="M95,80 L140,60 L175,55 L200,65 L230,90 L245,120 L260,155 L265,190 L255,220 L240,250 L225,275 L210,295 L195,300 L178,290 L162,270 L145,245 L128,215 L112,185 L100,155 L88,125 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+          <!-- Jawa -->
+          <path d="M255,280 L295,265 L340,258 L385,252 L430,248 L470,250 L505,255 L530,265 L535,278 L520,292 L490,300 L455,305 L415,308 L375,307 L335,303 L295,297 L265,292 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+          <!-- Kalimantan -->
+          <path d="M390,80 L440,60 L500,48 L560,50 L610,62 L645,80 L665,110 L670,145 L660,185 L645,220 L622,248 L595,265 L565,272 L535,268 L508,255 L480,245 L450,248 L420,248 L398,240 L380,220 L368,195 L365,165 L370,130 L380,100 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+          <!-- Sulawesi (simplified) -->
+          <path d="M668,115 L690,105 L710,108 L722,120 L720,140 L710,158 L720,180 L728,200 L720,218 L705,225 L690,218 L678,200 L668,185 L660,165 L658,145 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+          <path d="M722,145 L750,138 L770,148 L775,165 L765,180 L748,185 L730,178 L720,162 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+          <path d="M700,225 L720,220 L738,230 L740,248 L728,260 L712,258 L700,245 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+          <!-- Maluku (small) -->
+          <ellipse cx="775" cy="175" rx="12" ry="20" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+          <ellipse cx="795" cy="210" rx="10" ry="15" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+          <ellipse cx="760" cy="230" rx="8" ry="12" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+
+          <!-- Papua (main) -->
+          <path d="M800,130 L840,115 L875,118 L895,132 L898,160 L892,195 L878,225 L858,248 L832,262 L808,268 L785,262 L768,248 L758,228 L758,205 L765,182 L778,160 L792,142 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.08)" stroke-width="0.8"/>
+
+          <!-- Bali + Lombok (tiny) -->
+          <ellipse cx="548" cy="292" rx="15" ry="10" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+          <ellipse cx="570" cy="292" rx="10" ry="8" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+          <ellipse cx="592" cy="293" rx="12" ry="9" fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+
+          <!-- NTT -->
+          <path d="M612,298 L650,285 L688,280 L710,290 L715,305 L700,318 L670,322 L640,318 L615,310 Z"
+                fill="#1A3358" stroke="rgba(255,255,255,0.06)" stroke-width="0.8"/>
+
+          <!-- ── CLUSTER OVERLAYS ── -->
+
+          <!-- Cluster 3: Tekanan Pasar Kerja (Jawa-Banten, cyan) -->
+          <ellipse cx="380" cy="278" rx="138" ry="35" fill="url(#clust3)" opacity="0.85"/>
+
+          <!-- Cluster 2: Transisi SMA Rentan (NTT + Sulawesi, orange) -->
+          <ellipse cx="680" cy="205" rx="55" ry="85" fill="url(#clust2)" opacity="0.8"/>
+          <ellipse cx="665" cy="300" rx="60" ry="22" fill="url(#clust2)" opacity="0.65"/>
+
+          <!-- Cluster 1: Risiko Ekstrem Struktural (Papua, red) -->
+          <ellipse cx="838" cy="192" rx="65" ry="60" fill="url(#clust1)" opacity="0.85"/>
+
+          <!-- Sumatera mild risk overlay -->
+          <ellipse cx="178" cy="178" rx="80" ry="110" fill="rgba(232,112,42,0.08)" />
+
+          <!-- ── PROVINCE LABELS ── -->
+          <g font-family="'DM Mono', monospace" fill="rgba(255,255,255,0.35)" font-size="7.5" text-anchor="middle">
+            <text x="178" y="182">SUMATERA</text>
+            <text x="390" y="282">JAWA</text>
+            <text x="520" y="155">KALIMANTAN</text>
+            <text x="695" y="162">SULAWESI</text>
+            <text x="838" y="195">PAPUA</text>
+          </g>
+
+          <!-- ── PRIORITY PINS ── -->
+          <!-- Papua Tengah -->
+          <g class="map-pin" filter="url(#glow-strong)">
+            <circle cx="838" cy="180" r="10" fill="rgba(168,50,34,0.2)" stroke="#A83222" stroke-width="1.5"/>
+            <circle cx="838" cy="180" r="5" fill="#EF4444"/>
+            <line x1="838" y1="170" x2="838" y2="155" stroke="#EF4444" stroke-width="1.2" stroke-dasharray="2,2"/>
+            <rect x="810" y="138" width="56" height="15" rx="4" fill="#A83222" opacity="0.9"/>
+            <text x="838" y="149" text-anchor="middle" font-family="'DM Mono',monospace" font-size="7.5" fill="white">PAPUA TENGAH</text>
+          </g>
+
+          <!-- Papua Pegunungan -->
+          <g class="map-pin-2" filter="url(#glow-strong)">
+            <circle cx="862" cy="215" r="9" fill="rgba(168,50,34,0.2)" stroke="#C45A1A" stroke-width="1.5"/>
+            <circle cx="862" cy="215" r="4" fill="#F97316"/>
+            <line x1="862" y1="224" x2="862" y2="238" stroke="#F97316" stroke-width="1.2" stroke-dasharray="2,2"/>
+            <rect x="832" y="238" width="60" height="15" rx="4" fill="#C45A1A" opacity="0.9"/>
+            <text x="862" y="249" text-anchor="middle" font-family="'DM Mono',monospace" font-size="7" fill="white">PAPUA PEGUNUNGAN</text>
+          </g>
+
+          <!-- DKI Jakarta marker (cyan cluster highlight) -->
+          <g filter="url(#glow)">
+            <circle cx="305" cy="276" r="5" fill="rgba(45,212,191,0.3)" stroke="#2DD4BF" stroke-width="1"/>
+            <circle cx="305" cy="276" r="2.5" fill="#2DD4BF"/>
+          </g>
+
+          <!-- Sulawesi marker -->
+          <g filter="url(#glow)">
+            <circle cx="693" cy="175" r="5" fill="rgba(232,112,42,0.3)" stroke="#E8702A" stroke-width="1"/>
+            <circle cx="693" cy="175" r="2.5" fill="#E8702A"/>
+          </g>
+
+          <!-- Compass rose -->
+          <g transform="translate(52,390)" opacity="0.25">
+            <circle r="12" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+            <text text-anchor="middle" y="-15" font-size="7" fill="white" font-family="'DM Mono',monospace">N</text>
+            <line y1="-9" y2="-3" stroke="white" stroke-width="1"/>
+            <line y1="3" y2="9" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
+          </g>
+
+          <!-- Scale bar -->
+          <g transform="translate(50,420)" opacity="0.3">
+            <line x1="0" y1="0" x2="80" y2="0" stroke="white" stroke-width="1"/>
+            <line x1="0" y1="-3" x2="0" y2="3" stroke="white" stroke-width="1"/>
+            <line x1="80" y1="-3" x2="80" y2="3" stroke="white" stroke-width="1"/>
+            <text x="40" y="-5" text-anchor="middle" font-size="7" fill="white" font-family="'DM Mono',monospace">500 km</text>
+          </g>
+
+          <!-- Equator line -->
+          <line x1="0" y1="210" x2="900" y2="210" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" stroke-dasharray="4,8"/>
+          <text x="12" y="208" font-size="7" fill="rgba(255,255,255,0.1)" font-family="'DM Mono',monospace">0°</text>
+        </svg>
+      </div>
+
+      <!-- Cluster legend -->
+      <div class="cluster-legend">
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#A83222"></div>
+          Klaster 0 — Risiko Ekstrem Struktural
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#E8702A"></div>
+          Klaster 1 — Transisi SMA Rentan
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot" style="background:#2DD4BF"></div>
+          Klaster 2 — Tekanan Pasar Kerja
+        </div>
+        <div class="legend-item" style="margin-top:4px">
+          <div style="width:10px;height:10px;border-radius:50%;border:1.5px solid #EF4444;background:transparent;flex-shrink:0"></div>
+          Pinpoint prioritas utama
+        </div>
+      </div>
+    </div>
+
+    <!-- Map stats -->
+    <div class="map-stats">
+      <div class="map-stat">
+        <div class="stat-val">38</div>
+        <div class="stat-label">PROVINSI DIANALISIS</div>
+      </div>
+      <div class="map-stat">
+        <div class="stat-val red">3</div>
+        <div class="stat-label">KLASTER RISIKO</div>
+      </div>
+      <div class="map-stat">
+        <div class="stat-val orange">2,92 Jt</div>
+        <div class="stat-label">TOTAL ATS NASIONAL</div>
+      </div>
+      <div class="map-stat">
+        <div class="stat-val cyan">540 Rb</div>
+        <div class="stat-label">KAPASITAS SR 2025</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MIDDLE PANEL ── -->
+  <div class="mid-panel fade-in-2">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">Province Priority Card</div>
+        <div class="panel-subtitle">INDEKS PRIORITAS SR · SPATIAL SCORE ENGINE</div>
+      </div>
+    </div>
+
+    <!-- Priority Card -->
+    <div class="priority-card">
+      <div class="priority-card-header">
+        <div>
+          <div class="priority-province">Papua Tengah</div>
+          <div class="priority-region">Papua · Indonesia Timur</div>
+        </div>
+        <div class="priority-index">
+          <div class="index-val">85.64</div>
+          <div class="index-label">INDEKS PRIORITAS SR</div>
+        </div>
+      </div>
+
+      <div class="cluster-badge ekstrem">
+        <div class="cluster-badge-dot"></div>
+        KLASTER 0 — RISIKO EKSTREM STRUKTURAL
+      </div>
+
+      <div class="risk-indicators">
+        <div class="risk-row">
+          <span class="risk-name">Risiko ATS SMA</span>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-fill" style="width:91%;background:linear-gradient(90deg,#A83222,#EF4444)"></div>
+          </div>
+          <span class="risk-score" style="color:#EF4444">91.2</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Kemiskinan</span>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-fill" style="width:84%;background:linear-gradient(90deg,#C45A1A,#F97316)"></div>
+          </div>
+          <span class="risk-score" style="color:#F97316">84.3</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">RLS Rendah</span>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-fill" style="width:78%;background:linear-gradient(90deg,#E8702A,#FBBF24)"></div>
+          </div>
+          <span class="risk-score" style="color:#FBBF24">78.1</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Risiko Hulu (EWS)</span>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-fill" style="width:72%;background:linear-gradient(90deg,#2DD4BF,#14B8A6)"></div>
+          </div>
+          <span class="risk-score" style="color:#2DD4BF">72.4</span>
+        </div>
+        <div class="risk-row">
+          <span class="risk-name">Beban Kapasitas</span>
+          <div class="risk-bar-wrap">
+            <div class="risk-bar-fill" style="width:68%;background:linear-gradient(90deg,#7F77DD,#A78BFA)"></div>
+          </div>
+          <span class="risk-score" style="color:#A78BFA">67.8</span>
+        </div>
+      </div>
+
+      <div class="recommendation-box">
+        <div class="rec-label">✦ REKOMENDASI LEGACY SYSTEM</div>
+        <div class="rec-text">SR lintas jenjang + boarding + verifikasi lapangan intensif</div>
+      </div>
+    </div>
+
+    <!-- Risk Engine -->
+    <div class="section-block">
+      <div class="block-title">Risk Engine — Bobot Indikator</div>
+      <div class="risk-engine-items">
+        <div class="engine-row">
+          <span class="engine-pct" style="color:#EF4444">35%</span>
+          <div class="engine-bar-wrap">
+            <div class="engine-bar-fill" style="width:35%;background:rgba(239,68,68,0.25);color:#FCA5A5">
+              Risiko ATS SMA
+            </div>
+          </div>
+        </div>
+        <div class="engine-row">
+          <span class="engine-pct" style="color:#F97316">25%</span>
+          <div class="engine-bar-wrap">
+            <div class="engine-bar-fill" style="width:25%;background:rgba(249,115,22,0.22);color:#FDBA74">
+              Kemiskinan
+            </div>
+          </div>
+        </div>
+        <div class="engine-row">
+          <span class="engine-pct" style="color:#FBBF24">20%</span>
+          <div class="engine-bar-wrap">
+            <div class="engine-bar-fill" style="width:20%;background:rgba(251,191,36,0.2);color:#FDE68A">
+              RLS Rendah
+            </div>
+          </div>
+        </div>
+        <div class="engine-row">
+          <span class="engine-pct" style="color:#2DD4BF">10%</span>
+          <div class="engine-bar-wrap">
+            <div class="engine-bar-fill" style="width:10%;background:rgba(45,212,191,0.18);color:#99F6E4">
+              Risiko Hulu
+            </div>
+          </div>
+        </div>
+        <div class="engine-row">
+          <span class="engine-pct" style="color:#A78BFA">10%</span>
+          <div class="engine-bar-wrap">
+            <div class="engine-bar-fill" style="width:10%;background:rgba(167,139,250,0.18);color:#DDD6FE">
+              Beban Kapasitas
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intervention Routes - Metro style -->
+    <div class="metro-flow">
+      <div class="block-title">Intervention Route — per Klaster</div>
+
+      <!-- Cluster 0 -->
+      <div class="metro-cluster">
+        <div class="metro-cluster-label" style="color:#EF4444">
+          <div style="width:8px;height:8px;border-radius:2px;background:#A83222;flex-shrink:0"></div>
+          Klaster 0 — Ekstrem Struktural
+        </div>
+        <div class="metro-line">
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#EF4444;"></div>
+            <div class="metro-station-label">Verifikasi DTSEN lapangan</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#EF4444,#F97316)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#F97316;"></div>
+            <div class="metro-station-label">Alokasi SR boarding</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#F97316,#FBBF24)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#FBBF24;"></div>
+            <div class="metro-station-label">Lintas jenjang SD-SMA</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#FBBF24,#22C55E)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#22C55E;"></div>
+            <div class="metro-station-label">Monitoring retensi ketat</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cluster 1 -->
+      <div class="metro-cluster">
+        <div class="metro-cluster-label" style="color:#F97316">
+          <div style="width:8px;height:8px;border-radius:2px;background:#E8702A;flex-shrink:0"></div>
+          Klaster 1 — Transisi SMA Rentan
+        </div>
+        <div class="metro-line">
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#E8702A;"></div>
+            <div class="metro-station-label">EWS absensi SMA</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#E8702A,#F59E0B)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#F59E0B;"></div>
+            <div class="metro-station-label">Kursi SR SMA prioritas</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#F59E0B,#2DD4BF)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#2DD4BF;"></div>
+            <div class="metro-station-label">Link vokasi BLK</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#2DD4BF,#22C55E)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#22C55E;"></div>
+            <div class="metro-station-label">Serapan kerja formal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cluster 2 -->
+      <div class="metro-cluster">
+        <div class="metro-cluster-label" style="color:#2DD4BF">
+          <div style="width:8px;height:8px;border-radius:2px;background:#14B8A6;flex-shrink:0"></div>
+          Klaster 2 — Tekanan Pasar Kerja
+        </div>
+        <div class="metro-line">
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#2DD4BF;"></div>
+            <div class="metro-station-label">Clipping Desil 1–2 kota</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#2DD4BF,#6366F1)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#6366F1;"></div>
+            <div class="metro-station-label">Waitlist digital</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#6366F1,#A78BFA)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#A78BFA;"></div>
+            <div class="metro-station-label">SR SMP-SMA urban</div>
+          </div>
+          <div class="metro-connector" style="background:linear-gradient(90deg,#A78BFA,#22C55E)"></div>
+          <div class="metro-station">
+            <div class="metro-dot" style="border-color:#22C55E;"></div>
+            <div class="metro-station-label">PKH kondisionalitas</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT PANEL: TEPAT ── -->
+  <div class="right-panel fade-in-3">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title">TEPAT Monitoring</div>
+        <div class="panel-subtitle">5 KPI FRAMEWORK · REAL-TIME EVALUATION</div>
+      </div>
+    </div>
+
+    <div class="gauge-grid">
+
+      <!-- T: Tepat Sasaran -->
+      <div class="gauge-card">
+        <div class="gauge-svg-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#2DD4BF" stroke-width="5"
+              stroke-dasharray="88 113" stroke-dashoffset="28" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+            <text x="24" y="29" text-anchor="middle" font-size="11" font-family="'DM Mono',monospace" fill="#2DD4BF" font-weight="500">T</text>
+          </svg>
+        </div>
+        <div class="gauge-text-wrap">
+          <div class="gauge-name">Tepat Sasaran</div>
+          <div class="gauge-desc">% kursi SR diisi anak Desil 1–2 terverifikasi</div>
+        </div>
+        <div class="gauge-score" style="color:#2DD4BF">91%</div>
+      </div>
+
+      <!-- E: Early Warning -->
+      <div class="gauge-card">
+        <div class="gauge-svg-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#F59E0B" stroke-width="5"
+              stroke-dasharray="79 113" stroke-dashoffset="28" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+            <text x="24" y="29" text-anchor="middle" font-size="11" font-family="'DM Mono',monospace" fill="#F59E0B" font-weight="500">E</text>
+          </svg>
+        </div>
+        <div class="gauge-text-wrap">
+          <div class="gauge-name">Early Warning</div>
+          <div class="gauge-desc">% kasus absensi kritis tertangani &lt;7 hari</div>
+        </div>
+        <div class="gauge-score" style="color:#F59E0B">78%</div>
+      </div>
+
+      <!-- P: Prioritas Spasial -->
+      <div class="gauge-card">
+        <div class="gauge-svg-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#A78BFA" stroke-width="5"
+              stroke-dasharray="96 113" stroke-dashoffset="28" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+            <text x="24" y="29" text-anchor="middle" font-size="11" font-family="'DM Mono',monospace" fill="#A78BFA" font-weight="500">P</text>
+          </svg>
+        </div>
+        <div class="gauge-text-wrap">
+          <div class="gauge-name">Prioritas Spasial</div>
+          <div class="gauge-desc">% SR baru dibangun di zona merah klaster</div>
+        </div>
+        <div class="gauge-score" style="color:#A78BFA">96%</div>
+      </div>
+
+      <!-- A: Adaptif Klaster -->
+      <div class="gauge-card">
+        <div class="gauge-svg-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#E8702A" stroke-width="5"
+              stroke-dasharray="73 113" stroke-dashoffset="28" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+            <text x="24" y="29" text-anchor="middle" font-size="11" font-family="'DM Mono',monospace" fill="#E8702A" font-weight="500">A</text>
+          </svg>
+        </div>
+        <div class="gauge-text-wrap">
+          <div class="gauge-name">Adaptif Klaster</div>
+          <div class="gauge-desc">% intervensi sesuai tipologi klaster wilayah</div>
+        </div>
+        <div class="gauge-score" style="color:#E8702A">73%</div>
+      </div>
+
+      <!-- T2: Transparansi -->
+      <div class="gauge-card">
+        <div class="gauge-svg-wrap">
+          <svg width="48" height="48" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="5"/>
+            <circle cx="24" cy="24" r="18" fill="none" stroke="#22C55E" stroke-width="5"
+              stroke-dasharray="102 113" stroke-dashoffset="28" stroke-linecap="round"
+              transform="rotate(-90 24 24)"/>
+            <text x="24" y="29" text-anchor="middle" font-size="10" font-family="'DM Mono',monospace" fill="#22C55E" font-weight="500">T</text>
+          </svg>
+        </div>
+        <div class="gauge-text-wrap">
+          <div class="gauge-name">Transparansi Hasil</div>
+          <div class="gauge-desc">Skor keterbukaan data dashboard publik</div>
+        </div>
+        <div class="gauge-score" style="color:#22C55E">100%</div>
+      </div>
+    </div>
+
+    <!-- Comparison table -->
+    <div class="compare-block">
+      <div class="block-title">Efektivitas Intervensi — Sebelum vs Sesudah</div>
+      <table class="compare-table">
+        <thead>
+          <tr>
+            <th>Indikator</th>
+            <th style="text-align:center">Sebelum</th>
+            <th style="text-align:center">Sesudah</th>
+            <th style="text-align:right">Δ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="td-label">Akurasi data sasaran</td>
+            <td class="td-before">54%</td>
+            <td class="td-after">91%</td>
+            <td class="td-delta delta-pos">+37pp</td>
+          </tr>
+          <tr>
+            <td class="td-label">Dropout rate Desil 1–2</td>
+            <td class="td-before">12.4%</td>
+            <td class="td-after">6.1%</td>
+            <td class="td-delta delta-pos">−50.8%</td>
+          </tr>
+          <tr>
+            <td class="td-label">Rata-rata lama sekolah</td>
+            <td class="td-before">7.1 th</td>
+            <td class="td-after">8.6 th</td>
+            <td class="td-delta delta-pos">+1.5 th</td>
+          </tr>
+          <tr>
+            <td class="td-label">Tingkat kelulusan SR</td>
+            <td class="td-before">—</td>
+            <td class="td-after">94.2%</td>
+            <td class="td-delta delta-pos">Baru</td>
+          </tr>
+          <tr>
+            <td class="td-label">Serapan kerja layak</td>
+            <td class="td-before">—</td>
+            <td class="td-after">76.8%</td>
+            <td class="td-delta delta-pos">Baru</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Acknowledged gap -->
+    <div style="margin:0 14px 14px">
+      <div style="background:rgba(168,50,34,0.08);border:1px solid rgba(168,50,34,0.25);border-radius:8px;padding:10px 12px">
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.08em;color:#FCA5A5;margin-bottom:4px">⚠ ACKNOWLEDGED GAP</div>
+        <div style="font-size:10px;color:rgba(245,240,232,0.7);line-height:1.6">
+          500 SR menjangkau <strong style="color:#F5F0E8">18,5%</strong> dari total ATS.<br>
+          <strong style="color:#EF4444">81,5%</strong> — 2,42 juta anak — belum ada solusi visible.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label">LIVE FEED</div>
+  <div class="ticker-track">
+    <div class="ticker-scroll" id="ticker">
+      <span>Klaster diperbarui: <span>10 Mei 2025 08:00 WIB</span></span>
+      <span>Papua Tengah · Indeks Prioritas: <span>85.64</span> · Rekomendasi: SR boarding lintas jenjang</span>
+      <span>Papua Pegunungan · Indeks Prioritas: <span>82.31</span> · Rekomendasi: SR lintas jenjang + verifikasi lapangan</span>
+      <span>NTT · Klaster 1 — Transisi SMA Rentan · Risiko SMA: <span>67.4</span></span>
+      <span>Sulawesi Barat · Klaster 1 — Transisi SMA Rentan · Risiko SMA: <span>58.2</span></span>
+      <span>DKI Jakarta · Klaster 2 — Tekanan Pasar Kerja · TPT: <span>8.3%</span></span>
+      <span>Model: Spatial Regression (SEM/SAR) + K-Means · Silhouette Score: <span>0.612</span></span>
+      <span>Data: BPS Susenas 2025 · DTSEN Kemensos · Dapodik Kemendikbud · Pusdatin Bappenas</span>
+      <!-- duplicate for infinite scroll -->
+      <span>Klaster diperbarui: <span>10 Mei 2025 08:00 WIB</span></span>
+      <span>Papua Tengah · Indeks Prioritas: <span>85.64</span> · Rekomendasi: SR boarding lintas jenjang</span>
+      <span>Papua Pegunungan · Indeks Prioritas: <span>82.31</span> · Rekomendasi: SR lintas jenjang + verifikasi lapangan</span>
+      <span>NTT · Klaster 1 — Transisi SMA Rentan · Risiko SMA: <span>67.4</span></span>
+      <span>Sulawesi Barat · Klaster 1 — Transisi SMA Rentan · Risiko SMA: <span>58.2</span></span>
+      <span>DKI Jakarta · Klaster 2 — Tekanan Pasar Kerja · TPT: <span>8.3%</span></span>
+      <span>Model: Spatial Regression (SEM/SAR) + K-Means · Silhouette Score: <span>0.612</span></span>
+      <span>Data: BPS Susenas 2025 · DTSEN Kemensos · Dapodik Kemendikbud · Pusdatin Bappenas</span>
+    </div>
+  </div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip">
+  <div class="tooltip-title" id="tooltip-title"></div>
+  <div id="tooltip-body"></div>
+</div>
+
+<script>
+// Filter buttons
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Tooltip on map pins
+const tooltip = document.getElementById('tooltip');
+const ttTitle = document.getElementById('tooltip-title');
+const ttBody  = document.getElementById('tooltip-body');
+
+const pinData = {
+  'Papua Tengah': {
+    idx: '85.64',
+    cluster: 'Klaster 0 — Risiko Ekstrem Struktural',
+    ats_sma: '91.2%',
+    miskin: '84.3%',
+    rls: '6.2 tahun'
+  },
+  'Papua Pegunungan': {
+    idx: '82.31',
+    cluster: 'Klaster 0 — Risiko Ekstrem Struktural',
+    ats_sma: '88.7%',
+    miskin: '79.1%',
+    rls: '5.8 tahun'
+  }
+};
+
+document.querySelectorAll('.map-pin, .map-pin-2').forEach(pin => {
+  pin.addEventListener('mouseenter', function(e) {
+    const name = this.querySelector('text') ? this.querySelector('text').textContent : 'Provinsi';
+    const d = pinData[name.trim()] || {};
+    ttTitle.textContent = name.trim();
+    ttBody.innerHTML = d.idx
+      ? `Indeks: <b style="color:#E8702A">${d.idx}</b><br>${d.cluster}<br>ATS SMA: ${d.ats_sma} · Miskin: ${d.miskin}<br>RLS: ${d.rls}`
+      : 'Data tersedia di panel kanan';
+    tooltip.classList.add('visible');
+  });
+  pin.addEventListener('mousemove', function(e) {
+    tooltip.style.left = (e.clientX + 12) + 'px';
+    tooltip.style.top  = (e.clientY + 12) + 'px';
+  });
+  pin.addEventListener('mouseleave', () => tooltip.classList.remove('visible'));
+});
+
+// Animate risk bars on load
+window.addEventListener('load', () => {
+  document.querySelectorAll('.risk-bar-fill').forEach(bar => {
+    const w = bar.style.width;
+    bar.style.width = '0';
+    setTimeout(() => { bar.style.width = w; }, 300);
+  });
+});
+</script>
+</body>
+</html>
